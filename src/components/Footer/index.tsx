@@ -1,5 +1,10 @@
-const Footer: React.FC = () => {
-  return <div>Footer</div>;
-};
+
+const Footer = () => {
+    return (
+        <>
+            footer
+        </>
+    )
+}
 
 export default Footer;

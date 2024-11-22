@@ -1,184 +1,120 @@
-import { Button, Form, Input, Divider, Typography } from 'antd';
+import { Button, Divider, Form, Input, message, notification } from 'antd';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { callRegister } from '../../services/api';
+import './register.scss';
 
-const formItemLayout = {
-  labelCol: {
-    xs: {
-      span: 24,
-    },
-    sm: {
-      span: 8,
-    },
-  },
-  wrapperCol: {
-    xs: {
-      span: 24,
-    },
-    sm: {
-      span: 16,
-    },
-  },
-};
-const tailFormItemLayout = {
-  wrapperCol: {
-    xs: {
-      span: 24,
-      offset: 0,
-    },
-    sm: {
-      span: 16,
-      offset: 8,
-    },
-  },
-};
-
-interface IRegisterProps {
-  username: string;
+interface RegisterFormValues {
+  fullName: string;
   email: string;
   password: string;
-  confirm: string;
   phone: string;
 }
 
-const RegisterPage = () => {
-  const [form] = Form.useForm();
-  const onFinish = (values: IRegisterProps) => {
-    console.log('Received values of form: ', values);
-  };
+const RegisterPage: React.FC = () => {
+  const navigate = useNavigate();
+  const [isSubmit, setIsSubmit] = useState(false);
 
-  const handleSubmit = () => {
-    form
-      .validateFields()
-      .then((values) => {
-        form.resetFields();
-        onFinish(values);
-      })
-      .catch((info) => {
-        console.log('Validate Failed:', info);
+  const onFinish = async (values: RegisterFormValues) => {
+    const { fullName, email, password, phone } = values;
+    setIsSubmit(true);
+    const res = await callRegister(fullName, email, password, phone);
+    console.log(res);
+    setIsSubmit(false);
+    if (res?.data?._id) {
+      message.success('Đăng ký tài khoản thành công!');
+      navigate('/login');
+    } else {
+      notification.error({
+        message: 'Có lỗi xảy ra',
+        description:
+          res.message && Array.isArray(res.message)
+            ? res.message[0]
+            : res.message,
+        duration: 5,
       });
+    }
   };
 
   return (
-    <div style={{ padding: '50px' }}>
-      <h1
-        style={{
-          textAlign: 'center',
-          fontSize: '30px',
-          fontWeight: 'bold',
-          color: 'rgb(211 151 210)',
-          marginBottom: '20px',
-        }}
-      >
-        Register Page
-      </h1>
-      <Divider />
-      <Form
-        {...formItemLayout}
-        form={form}
-        name='register'
-        onFinish={onFinish}
-        style={{
-          maxWidth: 600,
-          margin: 'auto',
-        }}
-        scrollToFirstError
-      >
-        <Form.Item
-          name='username'
-          label='Username'
-          tooltip='What do you want others to call you?'
-          rules={[
-            {
-              required: true,
-              message: 'Please input your usname!',
-              whitespace: true,
-            },
-          ]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          name='email'
-          label='E-mail'
-          rules={[
-            {
-              type: 'email',
-              message: 'The input is not valid E-mail!',
-            },
-            {
-              required: true,
-              message: 'Please input your E-mail!',
-            },
-          ]}
-        >
-          <Input />
-        </Form.Item>
+    <div className='register-page'>
+      <main className='main'>
+        <div className='container'>
+          <section className='wrapper'>
+            <div className='heading'>
+              <h2 className='text text-large'>Đăng Ký Tài Khoản</h2>
+              <Divider />
+            </div>
+            <Form
+              name='basic'
+              // style={{ maxWidth: 600, margin: '0 auto' }}
+              onFinish={onFinish}
+              autoComplete='off'
+            >
+              <Form.Item
+                labelCol={{ span: 24 }} //whole column
+                label='Họ tên'
+                name='fullName'
+                rules={[
+                  { required: true, message: 'Họ tên không được để trống!' },
+                ]}
+              >
+                <Input />
+              </Form.Item>
 
-        <Form.Item
-          name='password'
-          label='Password'
-          rules={[
-            {
-              required: true,
-              message: 'Please input your password!',
-            },
-          ]}
-          hasFeedback
-        >
-          <Input.Password />
-        </Form.Item>
+              <Form.Item
+                labelCol={{ span: 24 }} //whole column
+                label='Email'
+                name='email'
+                rules={[
+                  { required: true, message: 'Email không được để trống!' },
+                ]}
+              >
+                <Input />
+              </Form.Item>
 
-        <Form.Item
-          name='confirm'
-          label='Confirm Password'
-          dependencies={['password']}
-          hasFeedback
-          rules={[
-            {
-              required: true,
-              message: 'Please confirm your password!',
-            },
-            ({ getFieldValue }) => ({
-              validator(_, value) {
-                if (!value || getFieldValue('password') === value) {
-                  return Promise.resolve();
-                }
-                return Promise.reject(
-                  new Error('The new password that you entered do not match!'),
-                );
-              },
-            }),
-          ]}
-        >
-          <Input.Password />
-        </Form.Item>
+              <Form.Item
+                labelCol={{ span: 24 }} //whole column
+                label='Mật khẩu'
+                name='password'
+                rules={[
+                  { required: true, message: 'Mật khẩu không được để trống!' },
+                ]}
+              >
+                <Input.Password />
+              </Form.Item>
+              <Form.Item
+                labelCol={{ span: 24 }} //whole column
+                label='Số điện thoại'
+                name='phone'
+                rules={[
+                  {
+                    required: true,
+                    message: 'Số điện thoại không được để trống!',
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
 
-        <Form.Item
-          name='phone'
-          label='Phone Number'
-          rules={[
-            {
-              required: true,
-              message: 'Please input your phone number!',
-            },
-          ]}
-        >
-          <Input
-            style={{
-              width: '100%',
-            }}
-          />
-        </Form.Item>
-        <Form.Item {...tailFormItemLayout}>
-          <Button
-            onClick={handleSubmit}
-            loading={false}
-            type='primary'
-            htmlType='submit'
-          >
-            Register
-          </Button>
-        </Form.Item>
-      </Form>
+              <Form.Item
+              // wrapperCol={{ offset: 6, span: 16 }}
+              >
+                <Button type='primary' htmlType='submit' loading={isSubmit}>
+                  Đăng ký
+                </Button>
+              </Form.Item>
+              <Divider>Or</Divider>
+              <p className='text text-normal'>
+                Đã có tài khoản ?
+                <span>
+                  <Link to='/login'> Đăng Nhập </Link>
+                </span>
+              </p>
+            </Form>
+          </section>
+        </div>
+      </main>
     </div>
   );
 };
