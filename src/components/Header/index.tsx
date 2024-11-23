@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { DownOutlined } from '@ant-design/icons';
 import { callLogout } from '../../services/api';
 import { doLogoutAction } from '../../redux/account/accountSlice';
+import Slider from '../Slider';
 
 const menuItems = [
   { key: '1', label: 'Home', path: '/' },
@@ -28,32 +29,10 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [sliderText, setSliderText] = useState(
-    'Get free delivery on orders over $100',
-  );
+
   const [isExiting, setIsExiting] = useState(false);
   const user = useSelector((state: any) => state.account.user);
   console.log('User from Redux:', user);
-
-  const sliderMessages = [
-    'Get free delivery on orders over $100',
-    '50% off Black Friday Sale',
-  ];
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsExiting(true);
-      setTimeout(() => {
-        setSliderText((prevText) =>
-          prevText === sliderMessages[0]
-            ? sliderMessages[1]
-            : sliderMessages[0],
-        );
-        setIsExiting(false);
-      }, 500); // Time for the exit animation to finish
-    }, 10000); // Change text every 5 seconds
-
-    return () => clearInterval(interval);
-  }, []);
 
   const handleLogout = async () => {
     const res = await callLogout();
@@ -95,12 +74,7 @@ const Header: React.FC = () => {
   return (
     <div className='fix-nav'>
       <div className=' bg-black overflow-hidden '>
-        <p
-          className={`flex h-10 items-center justify-center text-sm font-medium text-white sm:px-6 lg:px-8
-       ${isExiting ? 'slider-exit' : 'slider-enter'} `}
-        >
-          {sliderText}
-        </p>
+        <Slider />
       </div>
       <div className='bg-white container mx-auto'>
         <header className='bg-white'>
