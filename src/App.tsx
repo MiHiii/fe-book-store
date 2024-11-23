@@ -15,47 +15,33 @@ import Loading from './components/Loading';
 import NotFound from './components/NotFound';
 import AdminPage from './pages/admin';
 import ProtectedRoute from './components/ProtectedRoute';
+import LayoutAdmin from './components/Admin/LayoutAdmin';
 
 const Layout = () => {
   return (
-    <div className='layout-app'>
+    <div className='layout-app min-h-screen flex flex-col'>
       <Header />
-      <Outlet />
+      <div className='flex-grow'>
+        <Outlet />
+      </div>
       <Footer />
-    </div>
-  );
-};
-const LayoutAdmin = () => {
-  const isAdminRoute = window.location.pathname.startsWith('/admin');
-  const user = useSelector((state: any) => state.account.user);
-  const userRole = user.role;
-  return (
-    <div className='layout-app'>
-      {isAdminRoute && userRole === 'admin' && <Header />}
-      {/* <Header /> */}
-      <Outlet />
-      {/* <Footer /> */}
-      {isAdminRoute && userRole === 'admin' && <Footer />}
     </div>
   );
 };
 
 export default function App() {
   const dispatch = useDispatch();
-  const isAuthenticated = useSelector(
-    (state: any) => state.account.isAuthenticated,
-  );
+  const isLoading = useSelector((state: any) => state.account.isLoading);
 
   const getAccount = async () => {
     if (
       window.location.pathname === '/login' ||
-      window.location.pathname === '/register' ||
-      window.location.pathname === '/'
+      window.location.pathname === '/register'
     )
       return;
     const res = await callFetchAccount();
     if (res && res.data) {
-      dispatch(doGetAccountAction(res.data));
+      dispatch(doGetAccountAction(res.data.user));
     }
   };
 
@@ -83,16 +69,16 @@ export default function App() {
 
     {
       path: '/admin',
-      element: <LayoutAdmin />,
+      element: (
+        <ProtectedRoute>
+          <LayoutAdmin />
+        </ProtectedRoute>
+      ),
       errorElement: <NotFound />,
       children: [
         {
           index: true,
-          element: (
-            <ProtectedRoute>
-              <AdminPage />
-            </ProtectedRoute>
-          ),
+          element: <AdminPage />,
         },
         {
           path: 'user',
@@ -118,7 +104,7 @@ export default function App() {
 
   return (
     <>
-      {isAuthenticated === true ||
+      {isLoading === false ||
       window.location.pathname === '/login' ||
       window.location.pathname === '/register' ||
       window.location.pathname === '/' ? (

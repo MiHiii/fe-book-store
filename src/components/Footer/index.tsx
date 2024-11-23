@@ -5,8 +5,8 @@ import { FaReddit, FaFacebook, FaGithub } from 'react-icons/fa';
 const Footer: React.FC = () => {
   return (
     <footer className='bg-white dark:bg-gray-900'>
-      <div className='container px-6 py-12 mx-auto'>
-        <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-y-10 lg:grid-cols-4'>
+      <div className='container border-t py-3 mx-auto'>
+        <div className='grid grid-cols-1 mx-auto px-4 sm:px-6 lg:px-8 gap-6 sm:grid-cols-2 sm:gap-y-10 lg:grid-cols-4'>
           <div className='sm:col-span-2'>
             <h1 className='max-w-lg text-xl font-semibold tracking-tight text-gray-800 xl:text-2xl dark:text-white'>
               Subscribe to our newsletter to get updates.
@@ -83,9 +83,9 @@ const Footer: React.FC = () => {
 
         <hr className='my-6 border-gray-200 md:my-8 dark:border-gray-700' />
 
-        <div className='flex items-center justify-between'>
+        <div className='flex items-center justify-between mx-auto px-4 sm:px-6'>
           <Link to='#'>
-            <img src='src/assets/logo.png' alt='Mihi Book' className='h-20' />
+            <img src='/src/assets/logo.png' alt='Mihi Book' className='h-20' />
           </Link>
 
           <div className='flex -mx-2'>

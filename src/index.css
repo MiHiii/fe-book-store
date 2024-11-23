@@ -2,6 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
+.menu-item {
+  position: relative;
+}
+
+.dropdown-menu {
+  display: none; /* Ẩn dropdown theo mặc định */
+}
+
+.menu-item {
+  position: relative;
+}
+
+.dropdown-menu {
+  display: block; /* Luôn hiển thị để animation hoạt động */
+  opacity: 0;
+  transform: translateY(-10px); /* Đẩy box lên một chút khi ẩn */
+  visibility: hidden;
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+}
+
+.menu-item:hover .dropdown-menu,
+.menu-item:focus-within .dropdown-menu {
+  opacity: 1;
+  transform: translateY(0); /* Hiện lại đúng vị trí */
+  visibility: visible;
+}
+
+/* Hiệu ứng đẩy nội dung xuống */
+.menu-item:hover + .content,
+.menu-item:focus-within + .content {
+  margin-top: 50px; /* Ví dụ đẩy xuống dưới */
+  transition: margin-top 0.3s ease;
+}
 .button {
   cursor: pointer;
   position: relative;
@@ -19,5 +52,69 @@
 }
 
 .button:hover::after {
+  width: 100%; /* Hiệu ứng underline khi hover */
+}
+.active {
+  position: relative; /* Để định vị đường dưới */
+}
+
+.active::after {
+  content: '';
+  position: absolute;
+  height: 2px;
+  left: 0;
+  bottom: 0;
+  width: 100%; /* Luôn chiếm toàn bộ chiều rộng */
+  background: #374151; /* Màu sắc của đường dưới */
+}
+.fix-nav {
+  position: sticky;
+  top: 0;
+  left: 0;
   width: 100%;
+  z-index: 100;
+}
+
+/* Slider text */
+/* Thêm hiệu ứng trượt */
+@keyframes slideInFromRight {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  50% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutToLeft {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+.slider-enter,
+.slider-exit {
+  will-change: transform;
+}
+
+.slider-enter {
+  animation: slideInFromRight 1s forwards;
+}
+
+.slider-exit {
+  animation: slideOutToLeft 1s forwards;
 }

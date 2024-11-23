@@ -1,117 +1,250 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Badge, Dropdown, message } from 'antd';
 import SearchBar from '../SearchBar';
+import { useDispatch, useSelector } from 'react-redux';
+import { DownOutlined } from '@ant-design/icons';
+import { callLogout } from '../../services/api';
+import { doLogoutAction } from '../../redux/account/accountSlice';
 
 const menuItems = [
   { key: '1', label: 'Home', path: '/' },
-  { key: '2', label: 'Categories', path: '/categories' },
+  { key: '2', label: 'Categories', path: '/categories', hasDropDown: true },
   { key: '3', label: 'Best Sellers', path: '/best-sellers' },
   { key: '4', label: 'New Arrivals', path: '/new-arrivals' },
   { key: '5', label: 'Contact', path: '/contact' },
 ];
 
+const categories = [
+  { key: '1', label: 'Fiction', path: '/categories/fiction' },
+  { key: '2', label: 'Non-Fiction', path: '/categories/non-fiction' },
+  { key: '3', label: 'Science', path: '/categories/science' },
+  { key: '4', label: 'History', path: '/categories/history' },
+];
+
 const Header: React.FC = () => {
-  return (
-    <div className='bg-white'>
-      <header className='relative bg-white'>
-        <p className='flex h-10 items-center justify-center bg-black px-4 text-sm font-medium text-white sm:px-6 lg:px-8'>
-          Get free delivery on orders over $100
-        </p>
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-        <nav
-          aria-label='Top'
-          className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [sliderText, setSliderText] = useState(
+    'Get free delivery on orders over $100',
+  );
+  const [isExiting, setIsExiting] = useState(false);
+  const user = useSelector((state: any) => state.account.user);
+  console.log('User from Redux:', user);
+
+  const sliderMessages = [
+    'Get free delivery on orders over $100',
+    '50% off Black Friday Sale',
+  ];
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsExiting(true);
+      setTimeout(() => {
+        setSliderText((prevText) =>
+          prevText === sliderMessages[0]
+            ? sliderMessages[1]
+            : sliderMessages[0],
+        );
+        setIsExiting(false);
+      }, 500); // Time for the exit animation to finish
+    }, 10000); // Change text every 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleLogout = async () => {
+    const res = await callLogout();
+    if (res && res.data) {
+      dispatch(doLogoutAction(res.data));
+      message.success('Đăng xuất thành công');
+      navigate('/');
+    }
+  };
+
+  const handleMouseEnter = () => {
+    setIsDropdownOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDropdownOpen(false);
+  };
+
+  const itemsDropdown = [
+    {
+      label: <a style={{ cursor: 'pointer' }}>Quản lý tài khoản</a>,
+      key: 'account',
+    },
+    {
+      label: (
+        <a
+          style={{ cursor: 'pointer', width: '100%' }}
+          onClick={() => {
+            handleLogout();
+          }}
         >
-          <div className='border-b border-gray-200'>
-            <div className='flex h-16 items-center'>
-              {/* Logo */}
-              <div className='ml-4 flex lg:ml-0'>
-                <Link
-                  to='/'
-                  className='self-center whitespace-nowrap text-sm sm:text-xl font-semibold dark:text-white'
-                >
-                  <img
-                    src='src/assets/logo.png'
-                    alt='Mihi Book'
-                    className='h-20'
-                  />
-                </Link>
-              </div>
+          Đăng xuất
+        </a>
+      ),
+      key: 'logout',
+    },
+  ];
 
-              {/* Menu */}
-              <div className='ml-10 space-x-8'>
-                {menuItems.map((item) => (
+  return (
+    <div className='fix-nav'>
+      <div className=' bg-black overflow-hidden '>
+        <p
+          className={`flex h-10 items-center justify-center text-sm font-medium text-white sm:px-6 lg:px-8
+       ${isExiting ? 'slider-exit' : 'slider-enter'} `}
+        >
+          {sliderText}
+        </p>
+      </div>
+      <div className='bg-white container mx-auto'>
+        <header className='bg-white'>
+          <nav
+            aria-label='Top'
+            className='border-b border-gray-200 px-4 sm:px-6'
+          >
+            <div className=''>
+              <div className='flex justify-center h-16 items-center'>
+                {/* Logo */}
+                <div className='ml-4 flex lg:ml-0'>
                   <Link
-                    key={item.key}
-                    to={item.path}
-                    className='button text-sm font-medium text-gray-700 hover:text-gray-800'
+                    to='/'
+                    className='self-center whitespace-nowrap text-sm sm:text-xl font-semibold dark:text-white'
                   >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-
-              <div className='ml-auto flex items-center'>
-                <div className='hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6'>
-                  <Link
-                    to={'/login'}
-                    className='button text-sm font-medium text-gray-700 hover:text-gray-800'
-                  >
-                    Sign in
-                  </Link>
-                  <span
-                    className='h-6 w-px bg-gray-200'
-                    aria-hidden='true'
-                  ></span>
-                  <Link
-                    to='/register'
-                    className='button text-sm font-medium text-gray-700 hover:text-gray-800'
-                  >
-                    Create account
+                    <img
+                      src='/src/assets/logo.png'
+                      alt='Mihi Book'
+                      className='h-20'
+                    />
                   </Link>
                 </div>
 
-                <div className='hidden lg:ml-8 lg:flex'>
-                  <a
-                    href='#'
-                    className='flex items-center text-gray-700 hover:text-gray-800 hover:underline'
-                  >
-                    <span className='ml-3 block text-sm font-medium'>VN</span>
-                  </a>
-                </div>
-
-                {/* Search */}
-                <div className='flex lg:ml-6'>
-                  <SearchBar />
-                </div>
-                {/* Cart */}
-                <div className='ml-4 flow-root lg:ml-6'>
-                  <a href='#' className='group -m-2 flex items-center p-2'>
-                    <svg
-                      className='h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-800'
-                      fill='none'
-                      viewBox='0 0 24 24'
-                      strokeWidth='1.5'
-                      stroke='currentColor'
-                      aria-hidden='true'
+                {/* Menu */}
+                <div className='ml-10 space-x-8 relative'>
+                  {menuItems.map((item) => (
+                    <div
+                      key={item.key}
+                      className='relative inline-block'
+                      onMouseEnter={
+                        item.hasDropDown ? handleMouseEnter : undefined
+                      }
+                      onMouseLeave={
+                        item.hasDropDown ? handleMouseLeave : undefined
+                      }
                     >
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        d='M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z'
-                      />
-                    </svg>
-                    <span className='ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800'>
-                      0
-                    </span>
-                  </a>
+                      <div className='menu-item group relative'>
+                        <NavLink
+                          to={item.path}
+                          className={({ isActive }) =>
+                            isActive
+                              ? 'button relative text-sm font-medium text-gray-700 hover:text-gray-800 active'
+                              : 'button relative text-sm font-medium text-gray-700 hover:text-gray-800'
+                          }
+                        >
+                          {item.label}
+                        </NavLink>
+                        {item.hasDropDown && (
+                          <div className='dropdown-menu absolute left-0 mt-1 w-96 p-2 bg-white border border-gray-200 rounded-md shadow-lg hidden group-hover:block'>
+                            {categories.map((category) => (
+                              <NavLink
+                                key={category.key}
+                                to={category.path}
+                                className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
+                              >
+                                {category.label}
+                              </NavLink>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className='ml-auto h-16 flex items-center justify-center'>
+                  {user && user.fullName ? (
+                    <Dropdown
+                      className='text-sm font-bold text-gray-700 hover:text-gray-700'
+                      menu={{ items: itemsDropdown }}
+                      trigger={['click']}
+                    >
+                      <a onClick={(e) => e.preventDefault()}>
+                        <div className='mx-5 flex flex-row items-center justify-center'>
+                          <span className='button'>Hi, {user?.fullName}</span>
+                          <DownOutlined className='mx-3' />
+                        </div>
+                      </a>
+                    </Dropdown>
+                  ) : (
+                    <div className='hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-4'>
+                      <Link
+                        to={'/login'}
+                        className='button text-sm font-medium text-gray-700 hover:text-gray-800'
+                      >
+                        Sign in
+                      </Link>
+                      <span
+                        className='h-6 w-px bg-gray-200'
+                        aria-hidden='true'
+                      ></span>
+                      <Link
+                        to='/register'
+                        className='button text-sm font-medium text-gray-700 hover:text-gray-800'
+                      >
+                        Create account
+                      </Link>
+                    </div>
+                  )}
+
+                  <div className='hidden lg:ml-4 lg:flex'>
+                    <a
+                      href='#'
+                      className='flex items-center text-gray-700 hover:text-gray-800 hover:underline'
+                    >
+                      <span className='ml-3 block text-sm font-medium'>VN</span>
+                    </a>
+                  </div>
+                  {/* Search */}
+                  <div className='flex'>
+                    <SearchBar />
+                  </div>
+                  {/* Cart */}
+                  <div className='ml-4 flow-root lg:ml-4'>
+                    <a href='#' className='group -m-2 flex items-center p-2'>
+                      <Badge
+                        style={{ backgroundColor: '#9ca3af' }}
+                        showZero={true}
+                        count={2}
+                        overflowCount={10}
+                      >
+                        <svg
+                          className='h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-800'
+                          fill='none'
+                          viewBox='0 0 24 24'
+                          strokeWidth='1.5'
+                          stroke='currentColor'
+                          aria-hidden='true'
+                        >
+                          <path
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                            d='M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z'
+                          />
+                        </svg>
+                      </Badge>
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </nav>
-      </header>
+          </nav>
+        </header>
+      </div>
     </div>
   );
 };
