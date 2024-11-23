@@ -100,15 +100,18 @@ const RegisterPage: React.FC = () => {
               <Form.Item
               // wrapperCol={{ offset: 6, span: 16 }}
               >
-                <Button type='primary' htmlType='submit' loading={isSubmit}>
-                  Đăng ký
-                </Button>
+                <button className='w-full px-4 py-2 text-sm font-medium tracking-wider text-white transition-colors duration-300 transform md:w-auto  focus:outline-none bg-gray-800 rounded-lg hover:bg-gray-700 focus:ring focus:ring-gray-300 focus:ring-opacity-80'>
+                  Đăng kí
+                </button>
               </Form.Item>
               <Divider>Or</Divider>
               <p className='text text-normal'>
                 Đã có tài khoản ?
                 <span>
-                  <Link to='/login'> Đăng Nhập </Link>
+                  <Link className='underline' to='/login'>
+                    {' '}
+                    Đăng Nhập{' '}
+                  </Link>
                 </span>
               </p>
             </Form>
