@@ -15,6 +15,7 @@ import Loading from './components/Loading';
 import NotFound from './components/NotFound';
 import AdminPage from './pages/admin';
 import ProtectedRoute from './components/ProtectedRoute';
+import UserTable from './components/Admin/User/UserTable';
 import LayoutAdmin from './components/Admin/LayoutAdmin';
 
 const Layout = () => {
@@ -69,24 +70,32 @@ export default function App() {
 
     {
       path: '/admin',
-      element: (
-        <ProtectedRoute>
-          <LayoutAdmin />
-        </ProtectedRoute>
-      ),
+      element: <LayoutAdmin />,
       errorElement: <NotFound />,
       children: [
         {
           index: true,
-          element: <AdminPage />,
+          element: (
+            <ProtectedRoute>
+              <AdminPage />
+            </ProtectedRoute>
+          ),
         },
         {
           path: 'user',
-          element: <ContactPage />,
+          element: (
+            <ProtectedRoute>
+              <UserTable />
+            </ProtectedRoute>
+          ),
         },
         {
           path: 'book',
-          element: <BookPage />,
+          element: <ProtectedRoute>{/* <ManageBookPage /> */}</ProtectedRoute>,
+        },
+        {
+          path: 'order',
+          element: <ProtectedRoute>{/* <AdminOrderPage /> */}</ProtectedRoute>,
         },
       ],
     },
@@ -107,7 +116,8 @@ export default function App() {
       {isLoading === false ||
       window.location.pathname === '/login' ||
       window.location.pathname === '/register' ||
-      window.location.pathname === '/' ? (
+      window.location.pathname === '/' ||
+      window.location.pathname.startsWith('/book') ? (
         <RouterProvider router={router} />
       ) : (
         <Loading />

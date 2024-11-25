@@ -1,17 +1,14 @@
-import React, { useState } from 'react';
-import { FaHeart } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaChevronDown, FaDollarSign, FaHeart, FaUser } from 'react-icons/fa';
 import {
   AppstoreOutlined,
   ExceptionOutlined,
   TeamOutlined,
-  UserOutlined,
-  DollarCircleOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  DownOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, Dropdown, message } from 'antd';
-import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { callLogout } from '../../services/api';
 import { doLogoutAction } from '../../redux/account/accountSlice';
@@ -21,43 +18,44 @@ const { Content, Footer, Sider, Header } = Layout;
 const items = [
   {
     label: <Link to='/admin'>Dashboard</Link>,
-    key: 'dashboard',
+    key: '/admin',
     icon: <AppstoreOutlined />,
   },
   {
     label: <span>Manage Users</span>,
-    icon: <UserOutlined />,
+    icon: <FaUser />,
     children: [
       {
         label: <Link to='/admin/user'>CRUD</Link>,
-        key: 'crud',
+        key: '/admin/user',
         icon: <TeamOutlined />,
       },
       {
         label: 'Files1',
-        key: 'file1',
+        key: '/admin/book',
         icon: <TeamOutlined />,
       },
     ],
   },
   {
     label: <Link to='/admin/book'>Manage Books</Link>,
-    key: 'book',
+    key: '/admin/book',
     icon: <ExceptionOutlined />,
   },
   {
     label: <Link to='/admin/order'>Manage Orders</Link>,
-    key: 'order',
-    icon: <DollarCircleOutlined />,
+    key: '/admin/order',
+    icon: <FaDollarSign />,
   },
 ];
 
 const LayoutAdmin: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
+  const [current, setCurrent] = useState(location.pathname);
   const [collapsed, setCollapsed] = useState(false);
-  const [activeMenu, setActiveMenu] = useState('dashboard');
   const user = useSelector((state: any) => state.account.user);
 
   const onSearch = (value: string) => {
@@ -71,6 +69,18 @@ const LayoutAdmin: React.FC = () => {
       message.success('Đăng xuất thành công');
       navigate('/');
     }
+  };
+
+  useEffect(() => {
+    if (location) {
+      if (current !== location.pathname) {
+        setCurrent(location.pathname);
+      }
+    }
+  }, [location, current]);
+
+  const handleClick = (e: any) => {
+    setCurrent(e.key);
   };
 
   const itemsDropdown = [
@@ -97,7 +107,7 @@ const LayoutAdmin: React.FC = () => {
     <Layout style={{ minHeight: '100vh' }} className='layout-admin'>
       <Sider
         style={{
-          overflow: 'hidden',
+          // overflow: 'hidden',
           height: '100vh',
           position: 'fixed',
           insetInlineStart: 0,
@@ -110,18 +120,26 @@ const LayoutAdmin: React.FC = () => {
         collapsible
         collapsed={collapsed}
         onCollapse={(value) => setCollapsed(value)}
+        width={200}
+        collapsedWidth={80} // Chiều rộng khi thu nhỏ
       >
         <Link to='/'>
           <img src='/src/assets/logo.png' alt='Logo' className='h-16 mx-auto' />
         </Link>
         <Menu
-          defaultSelectedKeys={[activeMenu]}
+          defaultSelectedKeys={['/']}
+          selectedKeys={[current]}
           mode='inline'
           items={items}
-          onClick={(e) => setActiveMenu(e.key)}
+          onClick={handleClick}
         />
       </Sider>
-      <Layout style={{ marginInlineStart: 200 }}>
+      <Layout
+        style={{
+          marginLeft: collapsed ? 80 : 200, // Điều chỉnh khoảng cách khi Sider thu nhỏ/mở rộng
+          transition: 'margin-left 0.3s ease', // Hiệu ứng mượt khi chuyển đổi
+        }}
+      >
         <Header
           style={{
             position: 'sticky',
@@ -137,39 +155,33 @@ const LayoutAdmin: React.FC = () => {
             {React.createElement(
               collapsed ? MenuUnfoldOutlined : MenuFoldOutlined,
               {
-                className: 'trigger p-3 m-2 text-xl', // Added text-xl class to increase size
+                className: 'trigger  text-xl',
                 onClick: () => setCollapsed(!collapsed),
               } as any,
             )}
           </span>
           <div className='items-center justify-between px-4 border-gray-300'>
-            {/* Search Input */}
-            <div className='items-center justify-between px-4 border-gray-300'>
-              <div className='flex flex-row items-center mx-6'>
-                <input
-                  type='text'
-                  placeholder='Search'
-                  className='w-96  border-none outline-none bg-gray-100 text-sm p-2 rounded-md focus:ring-2 focus:ring-gray-400'
-                  // value={searchTerm}
-                  // onChange={(e) => setSearchTerm(e.target.value)}
-                  // onFocus={handleSearchFocus}
+            <div className='flex flex-row items-center mx-6'>
+              <input
+                type='text'
+                placeholder='Search'
+                className='w-96 border-none outline-none bg-gray-100 text-sm p-2 rounded-md focus:ring-2 focus:ring-gray-400'
+              />
+              <svg
+                className='h-6 w-6 text-gray-400 -ml-8'
+                fill='none'
+                onClick={() => {}}
+                viewBox='0 0 24 24'
+                strokeWidth='1.5'
+                stroke='currentColor'
+                aria-hidden='true'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  d='M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z'
                 />
-                <svg
-                  className='h-6 w-6 text-gray-400 -ml-8'
-                  fill='none'
-                  onClick={() => {}}
-                  viewBox='0 0 24 24'
-                  strokeWidth='1.5'
-                  stroke='currentColor'
-                  aria-hidden='true'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    d='M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z'
-                  />
-                </svg>
-              </div>
+              </svg>
             </div>
           </div>
           <Dropdown
@@ -178,14 +190,19 @@ const LayoutAdmin: React.FC = () => {
             trigger={['click']}
           >
             <a onClick={(e) => e.preventDefault()}>
-              <div className='mx-5 flex flex-row items-center justify-center'>
+              <div className=' flex flex-row items-center justify-center'>
                 <span className='button'>Welcome {user?.fullName}</span>
-                <DownOutlined className='mx-3' />
+                <FaChevronDown className='mx-2' />
               </div>
             </a>
           </Dropdown>
         </Header>
-        <Content>
+        <Content
+          style={{
+            padding: '24px',
+            flexGrow: 1, // Phần Content tự co dãn
+          }}
+        >
           <Outlet />
         </Content>
         <Footer
@@ -193,7 +210,7 @@ const LayoutAdmin: React.FC = () => {
           style={{ padding: 0 }}
         >
           Copyright ©{new Date().getFullYear()} Mihi
-          <FaHeart color='' className='mx-3 text-gray-400' />
+          <FaHeart color='' className=' mx-2 text-gray-400' />
         </Footer>
       </Layout>
     </Layout>

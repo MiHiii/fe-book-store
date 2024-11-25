@@ -76,7 +76,6 @@
 }
 
 /* Slider text */
-/* Thêm hiệu ứng trượt */
 @keyframes slideInFromRight {
   0% {
     transform: translateX(100%);

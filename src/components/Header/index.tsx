@@ -32,7 +32,7 @@ const Header: React.FC = () => {
 
   const [isExiting, setIsExiting] = useState(false);
   const user = useSelector((state: any) => state.account.user);
-  console.log('User from Redux:', user);
+  // console.log('User from Redux:', user);
 
   const handleLogout = async () => {
     const res = await callLogout();

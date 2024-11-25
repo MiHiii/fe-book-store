@@ -39,6 +39,7 @@ instance.interceptors.response.use(
     return response && response.data ? response.data : response;
   },
   async function (error) {
+    console.log('error', error);
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
     if (
@@ -62,9 +63,12 @@ instance.interceptors.response.use(
       +error.response.status === 400 &&
       error.config.url === '/api/v1/auth/refresh'
     ) {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      window.location.href = '/login';
+      if (
+        window.location.pathname !== '/' &&
+        !window.location.pathname.startsWith('/book')
+      ) {
+        window.location.href = '/login';
+      }
     }
 
     return error?.response?.data ?? Promise.reject(error);
