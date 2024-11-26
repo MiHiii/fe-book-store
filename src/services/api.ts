@@ -26,8 +26,8 @@ export const callLogout = () => {
   return axios.post('/api/v1/auth/logout');
 };
 
-export const callGetAllUsers = () => {
-  return axios.get('/api/v1/user');
+export const callFetchListUser = (query: string) => {
+  return axios.get(`/api/v1/user?${query}`);
 };
 
 export const deleteUser = (id: string) => {

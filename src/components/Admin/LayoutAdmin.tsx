@@ -39,7 +39,7 @@ const items = [
   },
   {
     label: <Link to='/admin/book'>Manage Books</Link>,
-    key: '/admin/book',
+    key: '/admin/booddk',
     icon: <ExceptionOutlined />,
   },
   {

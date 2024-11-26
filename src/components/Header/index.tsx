@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react';
 import { Badge, Dropdown, message } from 'antd';
 import SearchBar from '../SearchBar';
 import { useDispatch, useSelector } from 'react-redux';
-import { DownOutlined } from '@ant-design/icons';
 import { callLogout } from '../../services/api';
 import { doLogoutAction } from '../../redux/account/accountSlice';
 import Slider from '../Slider';
+import { FaChevronDown } from 'react-icons/fa';
 
 const menuItems = [
   { key: '1', label: 'Home', path: '/' },
@@ -150,7 +150,7 @@ const Header: React.FC = () => {
                       <a onClick={(e) => e.preventDefault()}>
                         <div className='mx-5 flex flex-row items-center justify-center'>
                           <span className='button'>Hi, {user?.fullName}</span>
-                          <DownOutlined className='mx-3' />
+                          <FaChevronDown className='mx-3' />
                         </div>
                       </a>
                     </Dropdown>
