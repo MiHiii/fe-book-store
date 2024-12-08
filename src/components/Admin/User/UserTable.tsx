@@ -61,13 +61,12 @@ const UserTable: React.FC = () => {
   };
 
   useEffect(() => {
-    featchUser();
+    fetchUser();
   }, [current, pageSize, location.pathname, location.search, sortQuery]);
 
-  const featchUser = async () => {
+  const fetchUser = async () => {
     setLoading(true);
     const fullName = new URLSearchParams(location.search).get('fullName') || '';
-    console.log(fullName);
     let query = `current=${current}&pageSize=${pageSize}`;
     if (fullName !== '') {
       query += `&fullName=/${fullName}/i`;
@@ -241,6 +240,7 @@ const UserTable: React.FC = () => {
       <ImportUser
         openModalImportUser={openModalImportUser}
         setOpenModalImportUser={setOpenModalImportUser}
+        fetchUser={fetchUser}
       />
     </div>
   );

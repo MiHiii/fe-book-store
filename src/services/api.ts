@@ -47,3 +47,7 @@ export const addUser = (
     phone,
   });
 };
+
+export const addListUser = (data: any) => {
+  return axios.post('/api/v1/user/bulk-create', data);
+};

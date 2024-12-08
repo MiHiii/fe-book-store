@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
-import { Button, Modal, message, Upload, Table } from 'antd';
+import { Button, Modal, message, Upload, Table, notification } from 'antd';
 import { FaInbox } from 'react-icons/fa';
 import type { UploadProps } from 'antd/lib/upload';
 import { utils, read } from 'xlsx';
+import { addListUser } from '../../../services/api';
 
 const { Dragger } = Upload;
-const ImportUser: React.FC = (props) => {
+const ImportUser: React.FC = (props: any) => {
+  console.log(props);
   interface User {
-    Fullname: string;
-    Email: string;
-    Phone: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    password?: string;
+    __rowNum__?: number;
   }
 
   const [dataImportUser, setDataImportUser] = useState<User[]>([]);
-  const { openModalImportUser, setOpenModalImportUser } = props;
+  const { openModalImportUser, setOpenModalImportUser, fetchUser } = props;
 
   const dummyRequest = ({ file, onSuccess }) => {
     setTimeout(() => {
@@ -47,7 +51,6 @@ const ImportUser: React.FC = (props) => {
               header: ['fullName', 'email', 'phone'],
               range: 1,
             });
-            console.log(jsonData);
             if (jsonData && jsonData.length > 0) {
               setDataImportUser(jsonData as User[]);
             }
@@ -63,11 +66,30 @@ const ImportUser: React.FC = (props) => {
     },
   };
 
-  const handleOk = () => {
-    setOpenModalImportUser(false);
+  const handleOk = async () => {
+    const listUsers = dataImportUser.map(({ __rowNum__, ...user }) => ({
+      ...user,
+      password: '123456',
+    }));
+    const res = await addListUser(listUsers);
+    if (res.data) {
+      notification.success({
+        description: `Success: ${res.data.countSuccess}, Error: ${res.data.countError}`,
+        message: 'Upload thành công',
+      });
+      setDataImportUser([]);
+      setOpenModalImportUser(false);
+      fetchUser();
+    } else {
+      notification.error({
+        description: res.message,
+        message: 'Đã có lỗi xảy ra',
+      });
+    }
   };
 
   const handleCancel = () => {
+    setDataImportUser([]);
     setOpenModalImportUser(false);
   };
 
@@ -79,11 +101,11 @@ const ImportUser: React.FC = (props) => {
         open={openModalImportUser}
         onOk={handleOk}
         okText='Import user'
-        okButtonProps={{ disabled: true }}
+        okButtonProps={{ disabled: dataImportUser.length < 1 }}
         onCancel={handleCancel}
         maskClosable={false}
       >
-        <Dragger {...uploadProps}>
+        <Dragger {...uploadProps} showUploadList={dataImportUser.length > 0}>
           <p className='flex items-center justify-center my-5'>
             <FaInbox size={50} />
           </p>
