@@ -7,7 +7,7 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from '@ant-design/icons';
-import { Layout, Menu, Dropdown, message } from 'antd';
+import { Layout, Menu, Dropdown, message, Avatar } from 'antd';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { callLogout } from '../../services/api';
@@ -31,15 +31,15 @@ const items = [
         icon: <TeamOutlined />,
       },
       {
-        label: 'Files1',
-        key: '/admin/book',
+        label: <Link to='/admin/user/add'>Add user</Link>,
+        key: '/admin/user/add',
         icon: <TeamOutlined />,
       },
     ],
   },
   {
     label: <Link to='/admin/book'>Manage Books</Link>,
-    key: '/admin/booddk',
+    key: '/admin/book',
     icon: <ExceptionOutlined />,
   },
   {
@@ -54,12 +54,18 @@ const LayoutAdmin: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const shouldShowSearchBar = location.pathname !== '/admin';
+
   const [current, setCurrent] = useState(location.pathname);
   const [collapsed, setCollapsed] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
   const user = useSelector((state: any) => state.account.user);
 
-  const onSearch = (value: string) => {
-    console.log(value);
+  const handleSearch = (keyword: string) => {
+    // console.log('Đã ấn', keyword);
+    if (keyword) {
+      navigate(`/admin/user?fullName=${keyword}`);
+    }
   };
 
   const handleLogout = async () => {
@@ -72,16 +78,8 @@ const LayoutAdmin: React.FC = () => {
   };
 
   useEffect(() => {
-    if (location) {
-      if (current !== location.pathname) {
-        setCurrent(location.pathname);
-      }
-    }
-  }, [location, current]);
-
-  const handleClick = (e: any) => {
-    setCurrent(e.key);
-  };
+    setCurrent(location.pathname); // Chỉ cần set trực tiếp
+  }, [location.pathname]); // Chỉ theo dõi pathname, không cần `current`
 
   const itemsDropdown = [
     {
@@ -102,6 +100,9 @@ const LayoutAdmin: React.FC = () => {
       key: 'logout',
     },
   ];
+  const urlAvatar = `${import.meta.env.VITE_BACKEND_URL}/images/avatar/${
+    user?.avatar
+  }`;
 
   return (
     <Layout style={{ minHeight: '100vh' }} className='layout-admin'>
@@ -131,7 +132,6 @@ const LayoutAdmin: React.FC = () => {
           selectedKeys={[current]}
           mode='inline'
           items={items}
-          onClick={handleClick}
         />
       </Sider>
       <Layout
@@ -162,28 +162,35 @@ const LayoutAdmin: React.FC = () => {
           </span>
           <div className='items-center justify-between px-4 border-gray-300'>
             <div className='flex flex-row items-center mx-6'>
-              <input
-                type='text'
-                placeholder='Search'
-                className='w-96 border-none outline-none bg-gray-100 text-sm p-2 rounded-md focus:ring-2 focus:ring-gray-400'
-              />
-              <svg
-                className='h-6 w-6 text-gray-400 -ml-8'
-                fill='none'
-                onClick={() => {}}
-                viewBox='0 0 24 24'
-                strokeWidth='1.5'
-                stroke='currentColor'
-                aria-hidden='true'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  d='M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z'
-                />
-              </svg>
+              {shouldShowSearchBar && (
+                <>
+                  <input
+                    type='text'
+                    value={searchValue}
+                    onChange={(e) => setSearchValue(e.target.value)}
+                    placeholder='Search'
+                    className='w-96 border-none outline-none bg-gray-100 text-sm p-2 rounded-md focus:ring-2 focus:ring-gray-400'
+                  />
+                  <svg
+                    className='h-6 w-6 text-gray-400 -ml-8 cursor-pointer'
+                    fill='none'
+                    onClick={() => handleSearch(searchValue)}
+                    viewBox='0 0 24 24'
+                    strokeWidth='1.5'
+                    stroke='currentColor'
+                    aria-hidden='true'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      d='M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z'
+                    />
+                  </svg>
+                </>
+              )}
             </div>
           </div>
+
           <Dropdown
             className='text-sm font-bold text-gray-700 hover:text-gray-700'
             menu={{ items: itemsDropdown }}
@@ -191,7 +198,8 @@ const LayoutAdmin: React.FC = () => {
           >
             <a onClick={(e) => e.preventDefault()}>
               <div className=' flex flex-row items-center justify-center'>
-                <span className='button'>Welcome {user?.fullName}</span>
+                <Avatar src={<img src={urlAvatar} alt='avatar' />} />
+                <span className='ml-2 button'>{user?.fullName}</span>
                 <FaChevronDown className='mx-2' />
               </div>
             </a>

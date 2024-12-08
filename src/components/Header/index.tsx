@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Badge, Dropdown, message } from 'antd';
+import { Avatar, Badge, Dropdown, message } from 'antd';
 import SearchBar from '../SearchBar';
 import { useDispatch, useSelector } from 'react-redux';
 import { callLogout } from '../../services/api';
@@ -32,7 +32,6 @@ const Header: React.FC = () => {
 
   const [isExiting, setIsExiting] = useState(false);
   const user = useSelector((state: any) => state.account.user);
-  // console.log('User from Redux:', user);
 
   const handleLogout = async () => {
     const res = await callLogout();
@@ -51,26 +50,30 @@ const Header: React.FC = () => {
     setIsDropdownOpen(false);
   };
 
-  const itemsDropdown = [
+  let items = [
     {
-      label: <a style={{ cursor: 'pointer' }}>Quản lý tài khoản</a>,
+      label: <label style={{ cursor: 'pointer' }}>Quản lý tài khoản</label>,
       key: 'account',
     },
     {
       label: (
-        <a
-          style={{ cursor: 'pointer', width: '100%' }}
-          onClick={() => {
-            handleLogout();
-          }}
-        >
+        <label style={{ cursor: 'pointer' }} onClick={() => handleLogout()}>
           Đăng xuất
-        </a>
+        </label>
       ),
       key: 'logout',
     },
   ];
+  if (user?.role === 'ADMIN') {
+    items.unshift({
+      label: <Link to='/admin'>Trang quản trị</Link>,
+      key: 'admin',
+    });
+  }
 
+  const urlAvatar = `${import.meta.env.VITE_BACKEND_URL}/images/avatar/${
+    user?.avatar
+  }`;
   return (
     <div className='fix-nav'>
       <div className=' bg-black overflow-hidden '>
@@ -144,12 +147,13 @@ const Header: React.FC = () => {
                   {user && user.fullName ? (
                     <Dropdown
                       className='text-sm font-bold text-gray-700 hover:text-gray-700'
-                      menu={{ items: itemsDropdown }}
+                      menu={{ items: items }}
                       trigger={['click']}
                     >
                       <a onClick={(e) => e.preventDefault()}>
                         <div className='mx-5 flex flex-row items-center justify-center'>
-                          <span className='button'>Hi, {user?.fullName}</span>
+                          <Avatar src={urlAvatar} />
+                          <span className='button ml-2'>{user?.fullName}</span>
                           <FaChevronDown className='mx-3' />
                         </div>
                       </a>

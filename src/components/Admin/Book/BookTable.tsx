@@ -3,8 +3,6 @@ import { Form, Input, Space, Table, Modal, Pagination, Button } from 'antd';
 import { callFetchListUser, deleteUser } from '../../../services/api';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
 import { Link, useLocation } from 'react-router-dom';
-import UserViewDetail from './UserViewDetail';
-import ImportUser from './ImportUser';
 
 interface DataType {
   id: string;
@@ -23,9 +21,6 @@ const UserTable: React.FC = () => {
   const [openModal, setOpenModal] = useState(false);
   const [currentUser, setCurrentUser] = useState<DataType | null>(null);
   const [sortQuery, setSortQuery] = useState('');
-  const [dataViewDetail, setDataViewDetail] = useState<DataType | null>(null);
-  const [openModalViewDetail, setOpenModalViewDetail] = useState(false);
-  const [openModalImportUser, setOpenModalImportUser] = useState(false);
   const [form] = Form.useForm();
 
   const location = useLocation();
@@ -62,7 +57,7 @@ const UserTable: React.FC = () => {
 
   useEffect(() => {
     featchUser();
-  }, [current, pageSize, location.pathname, location.search, sortQuery]);
+  }, [current, pageSize, location.search, sortQuery]);
 
   const featchUser = async () => {
     setLoading(true);
@@ -115,20 +110,6 @@ const UserTable: React.FC = () => {
     {
       title: 'Id',
       dataIndex: '_id',
-      render: (text: any, record, index) => {
-        return (
-          <a
-            className='text-blue-500'
-            href='#>'
-            onClick={() => {
-              setDataViewDetail(record);
-              setOpenModalViewDetail(true);
-            }}
-          >
-            {record._id}
-          </a>
-        );
-      },
     },
     {
       title: 'Name',
@@ -174,40 +155,27 @@ const UserTable: React.FC = () => {
         columns={columns}
         onChange={onChange}
         dataSource={listUser}
-        loading={loading}
         rowKey='_id'
         pagination={{
           total: total,
           current: current,
           pageSize: pageSize,
           showSizeChanger: true,
-          showTotal(total, range) {
-            return `${range[0]} - ${range[1]} of ${total} users`;
-          },
         }}
         title={() => (
-          <div className='flex justify-between'>
-            <h1 className='text-xl font-bold'>List user</h1>
-            <div className='flex flex-row gap-1'>
-              <Link
-                className='w-full px-4 py-2 mx-auto text-sm font-medium hover:text-white text-white transition-colors duration-300 transform md:w-auto focus:outline-none bg-gray-800 rounded-lg hover:bg-gray-700 hover:text focus:ring focus:ring-gray-300 focus:ring-opacity-80 flex justify-center items-center whitespace-nowrap'
-                to='/admin/user/add'
-              >
-                Add User
-              </Link>
-              <button
-                className='w-full px-4 py-2 mx-auto text-sm font-medium text-white transition-colors duration-300 transform md:w-auto focus:outline-none bg-gray-800 rounded-lg hover:bg-gray-700 focus:ring focus:ring-gray-300 focus:ring-opacity-80 flex justify-center items-center whitespace-nowrap'
-                onClick={() => setOpenModalImportUser(true)}
-              >
-                Import User
-              </button>
-              <button
-                className='w-full px-4 py-2 mx-auto text-sm font-medium text-white transition-colors duration-300 transform md:w-auto focus:outline-none bg-gray-800 rounded-lg hover:bg-gray-700 focus:ring focus:ring-gray-300 focus:ring-opacity-80 flex justify-center items-center whitespace-nowrap'
-                onClick={() => console.log('Export Data')}
-              >
-                Export Data
-              </button>
-            </div>
+          <div className='flex justify-end'>
+            <Link
+              className='bg-blue-500 text-white px-4 py-2 rounded mr-2'
+              to='/admin/user/add'
+            >
+              Add User
+            </Link>
+            <button
+              className='bg-green-500 text-white px-4 py-2 rounded'
+              onClick={() => console.log('Export Data')}
+            >
+              Export Data
+            </button>
           </div>
         )}
       />
@@ -225,23 +193,13 @@ const UserTable: React.FC = () => {
             <Input />
           </Form.Item>
           <Form.Item label='Email' name='email'>
-            <Input disabled />
+            <Input />
           </Form.Item>
           <Form.Item label='Số điện thoại' name='phone'>
             <Input />
           </Form.Item>
         </Form>
       </Modal>
-      <UserViewDetail
-        openModalViewDetail={openModalViewDetail}
-        setOpenModalViewDetail={setOpenModalViewDetail}
-        dataViewDetail={dataViewDetail}
-        setDataViewDetail={setDataViewDetail}
-      />
-      <ImportUser
-        openModalImportUser={openModalImportUser}
-        setOpenModalImportUser={setOpenModalImportUser}
-      />
     </div>
   );
 };

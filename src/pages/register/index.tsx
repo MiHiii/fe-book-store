@@ -19,7 +19,6 @@ const RegisterPage: React.FC = () => {
     const { fullName, email, password, phone } = values;
     setIsSubmit(true);
     const res = await callRegister(fullName, email, password, phone);
-    console.log(res);
     setIsSubmit(false);
     if (res?.data?._id) {
       message.success('Đăng ký tài khoản thành công!');

@@ -17,6 +17,8 @@ import AdminPage from './pages/admin';
 import ProtectedRoute from './components/ProtectedRoute';
 import UserTable from './components/Admin/User/UserTable';
 import LayoutAdmin from './components/Admin/LayoutAdmin';
+import AddUser from './components/Admin/User/AddUser';
+import BookTable from './components/Admin/Book/BookTable';
 
 const Layout = () => {
   return (
@@ -90,8 +92,21 @@ export default function App() {
           ),
         },
         {
+          path: 'user/add',
+          element: (
+            <ProtectedRoute>
+              <AddUser />
+            </ProtectedRoute>
+          ),
+        },
+        {
           path: 'book',
-          element: <ProtectedRoute>{/* <ManageBookPage /> */}</ProtectedRoute>,
+          element: (
+            <ProtectedRoute>
+              {' '}
+              <BookTable />{' '}
+            </ProtectedRoute>
+          ),
         },
         {
           path: 'order',
