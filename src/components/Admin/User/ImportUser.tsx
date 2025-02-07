@@ -4,10 +4,10 @@ import { FaInbox } from 'react-icons/fa';
 import type { UploadProps } from 'antd/lib/upload';
 import { utils, read } from 'xlsx';
 import { addListUser } from '../../../services/api';
+import userTemplate from './user.xlsx?url';
 
 const { Dragger } = Upload;
 const ImportUser: React.FC = (props: any) => {
-  console.log(props);
   interface User {
     fullName: string;
     email: string;
@@ -116,6 +116,16 @@ const ImportUser: React.FC = (props: any) => {
             Support for a single or bulk upload. Strictly prohibited from
             uploading company data or other banned files.
           </p>
+          <a
+            className='button font-semibold hover:text-gray-800'
+            href={userTemplate}
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+            download
+          >
+            Download Sample File
+          </a>
         </Dragger>
         <Table
           dataSource={dataImportUser}

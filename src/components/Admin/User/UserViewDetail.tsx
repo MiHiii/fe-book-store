@@ -29,7 +29,7 @@ function UserViewDetail(props: any) {
         closable
         destroyOnClose
         width={'50vw'}
-        title={<p>Chi tiết người dùng</p>}
+        title={<p>User details</p>}
         placement='right'
         open={openModalViewDetail}
         onClose={onClose}

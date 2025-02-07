@@ -103,8 +103,7 @@ export default function App() {
           path: 'book',
           element: (
             <ProtectedRoute>
-              {' '}
-              <BookTable />{' '}
+              <BookTable />
             </ProtectedRoute>
           ),
         },

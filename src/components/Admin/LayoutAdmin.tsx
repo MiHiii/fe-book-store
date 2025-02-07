@@ -62,10 +62,12 @@ const LayoutAdmin: React.FC = () => {
   const user = useSelector((state: any) => state.account.user);
 
   const handleSearch = (keyword: string) => {
-    // console.log('Đã ấn', keyword);
+    const path = location.pathname;
     if (keyword) {
-      navigate(`/admin/user?fullName=${keyword}`);
+      if (path === '/admin/book') navigate(`/admin/book?mainText=${keyword}`);
+      if (path === '/admin/user') navigate(`/admin/user?fullName=${keyword}`);
     }
+    setSearchValue('');
   };
 
   const handleLogout = async () => {

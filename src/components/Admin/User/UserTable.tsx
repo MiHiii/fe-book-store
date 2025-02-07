@@ -1,17 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Space, Table, Modal, Pagination, Button } from 'antd';
-import { callFetchListUser, deleteUser } from '../../../services/api';
+import { Form, Input, Space, Table, Modal, message } from 'antd';
+import {
+  callFetchListUser,
+  deleteUser,
+  callFetchAllUser,
+  callUpdateUser,
+} from '../../../services/api';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
 import { Link, useLocation } from 'react-router-dom';
 import UserViewDetail from './UserViewDetail';
 import ImportUser from './ImportUser';
+import { utils, writeFile } from 'xlsx';
 
 interface DataType {
-  id: string;
+  _id: string;
   fullName: string;
   email: string;
   phone: string;
   role: string;
+  updatedAt: string;
 }
 
 const UserTable: React.FC = () => {
@@ -27,15 +34,9 @@ const UserTable: React.FC = () => {
   const [openModalViewDetail, setOpenModalViewDetail] = useState(false);
   const [openModalImportUser, setOpenModalImportUser] = useState(false);
   const [form] = Form.useForm();
-
   const location = useLocation();
 
   const { confirm } = Modal;
-
-  const handleOk = (listUser: any) => {
-    setCurrentUser(listUser);
-    setOpenModal(true);
-  };
 
   const showDeleteConfirm = ($listUser: any) => {
     confirm({
@@ -55,6 +56,7 @@ const UserTable: React.FC = () => {
       onOk() {
         deleteUser($listUser._id);
         setListUser(listUser.filter((item: any) => item._id !== $listUser._id));
+        message.success('Delete user success!');
       },
       onCancel() {},
     });
@@ -75,7 +77,6 @@ const UserTable: React.FC = () => {
       query += `${sortQuery}`;
     }
     const res = await callFetchListUser(query);
-    console.log(res);
     if (res && res.data) {
       setListUser(res.data.result);
       setTotal(res.data.meta.total);
@@ -86,9 +87,11 @@ const UserTable: React.FC = () => {
   useEffect(() => {
     if (currentUser) {
       form.setFieldsValue({
+        _id: currentUser._id,
         fullName: currentUser.fullName,
         email: currentUser.email,
         phone: currentUser.phone,
+        updateAt: currentUser.updatedAt,
       });
     }
   }, [currentUser]);
@@ -151,7 +154,10 @@ const UserTable: React.FC = () => {
       render: (_: any, record: DataType) => (
         <Space size='middle'>
           <a
-            onClick={() => handleOk(record)}
+            onClick={() => {
+              setCurrentUser(record);
+              setOpenModal(true);
+            }}
             className='text-blue-500 mr-3 hover:underline hover:text-blue-500  '
           >
             Edit
@@ -166,6 +172,53 @@ const UserTable: React.FC = () => {
       ),
     },
   ];
+
+  const handleExport = async () => {
+    const res = await callFetchAllUser();
+    const raw_data = res.data;
+
+    /* flatten objects */
+    const rows = raw_data.map((row) => ({
+      id: row._id,
+      name: row.fullName,
+      email: row.email,
+      phone: row.phone,
+      updateAt: row.updatedAt,
+      createAt: row.createdAt,
+      role: row.role,
+    }));
+
+    /* generate worksheet and workbook */
+    const worksheet = utils.json_to_sheet(rows);
+    const workbook = utils.book_new();
+    utils.book_append_sheet(workbook, worksheet, 'Dates');
+
+    /* fix headers */
+    utils.sheet_add_aoa(
+      worksheet,
+      [['Id', 'Full Name', 'Email', 'Phone', 'Update At', 'Create At', 'Role']],
+      { origin: 'A1' },
+    );
+
+    /* calculate column width */
+    const max_width = rows.reduce((w, r) => Math.max(w, r.name.length), 10);
+    worksheet['!cols'] = [{ wch: max_width }];
+
+    /* create an XLSX file and try to save to Presidents.xlsx */
+    writeFile(workbook, 'AllUser.csv', { compression: true });
+  };
+
+  const handleUpdateUser = async () => {
+    const data = form.getFieldsValue();
+
+    const res = await callUpdateUser(data);
+    if (res && res.data) {
+      fetchUser();
+      setOpenModal(false);
+      setCurrentUser(null);
+      message.success('Update user success!');
+    }
+  };
 
   return (
     <div className='m-4 shadow-lg rounded-lg'>
@@ -202,7 +255,7 @@ const UserTable: React.FC = () => {
               </button>
               <button
                 className='w-full px-4 py-2 mx-auto text-sm font-medium text-white transition-colors duration-300 transform md:w-auto focus:outline-none bg-gray-800 rounded-lg hover:bg-gray-700 focus:ring focus:ring-gray-300 focus:ring-opacity-80 flex justify-center items-center whitespace-nowrap'
-                onClick={() => console.log('Export Data')}
+                onClick={() => handleExport()}
               >
                 Export Data
               </button>
@@ -211,15 +264,16 @@ const UserTable: React.FC = () => {
         )}
       />
       <Modal
-        title='Update list User'
+        title='Update User'
         open={openModal}
-        onOk={() => setOpenModal(false)}
+        onOk={() => handleUpdateUser()}
         onCancel={() => {
           setOpenModal(false);
           setCurrentUser(null);
         }}
       >
         <Form form={form} name='basic' autoComplete='off'>
+          <Form.Item label='Id' name='_id' hidden></Form.Item>
           <Form.Item label='Họ tên' name='fullName'>
             <Input />
           </Form.Item>
