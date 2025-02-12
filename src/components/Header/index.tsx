@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Avatar, Badge, Dropdown, message } from 'antd';
 import SearchBar from '../SearchBar';
 import { useDispatch, useSelector } from 'react-redux';
-import { callLogout } from '../../services/api';
+import { callLogout, callFetchCategory } from '../../services/api';
 import { doLogoutAction } from '../../redux/account/accountSlice';
 import Slider from '../Slider';
 import { FaChevronDown } from 'react-icons/fa';
@@ -17,20 +17,29 @@ const menuItems = [
   { key: '5', label: 'Contact', path: '/contact' },
 ];
 
-const categories = [
-  { key: '1', label: 'Fiction', path: '/categories/fiction' },
-  { key: '2', label: 'Non-Fiction', path: '/categories/non-fiction' },
-  { key: '3', label: 'Science', path: '/categories/science' },
-  { key: '4', label: 'History', path: '/categories/history' },
-];
-
 const Header: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const [isExiting, setIsExiting] = useState(false);
+  const [listCategory, setListCategory] = useState([]);
+
+  useEffect(() => {
+    // Fetch list category
+    const fetchCategory = async () => {
+      const res = await callFetchCategory();
+      if (res && res.data) {
+        const d = res.data.map((item: any, i) => ({
+          key: i + 1,
+          label: item,
+          path: `/categories/${item}`,
+        }));
+        setListCategory(d);
+      }
+    };
+    fetchCategory();
+  }, []);
   const user = useSelector((state: any) => state.account.user);
 
   const handleLogout = async () => {
@@ -75,16 +84,13 @@ const Header: React.FC = () => {
     user?.avatar
   }`;
   return (
-    <div className='fix-nav'>
+    <div className='fix-nav border-b border-gray-200 bg-white'>
       <div className=' bg-black overflow-hidden '>
         <Slider />
       </div>
-      <div className='bg-white container mx-auto'>
+      <div className=' container mx-auto'>
         <header className='bg-white'>
-          <nav
-            aria-label='Top'
-            className='border-b border-gray-200 px-4 sm:px-6'
-          >
+          <nav aria-label='Top' className=' px-4 sm:px-6'>
             <div className=''>
               <div className='flex justify-center h-16 items-center'>
                 {/* Logo */}
@@ -127,7 +133,7 @@ const Header: React.FC = () => {
                         </NavLink>
                         {item.hasDropDown && (
                           <div className='dropdown-menu absolute left-0 mt-1 w-96 p-2 bg-white border border-gray-200 rounded-md shadow-lg hidden group-hover:block'>
-                            {categories.map((category) => (
+                            {listCategory.map((category) => (
                               <NavLink
                                 key={category.key}
                                 to={category.path}

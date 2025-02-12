@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import BookPage from './pages/book';
 import ContactPage from './pages/contact';
 import LoginPage from './pages/login';
 import { Outlet } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import Home from './components/Home';
 import RegisterPage from './pages/register';
 import { callFetchAccount } from './services/api';
 import { useDispatch, useSelector } from 'react-redux';
@@ -14,11 +12,15 @@ import { doGetAccountAction } from './redux/account/accountSlice';
 import Loading from './components/Loading';
 import NotFound from './components/NotFound';
 import AdminPage from './pages/admin';
+import HomePage from './pages/HomePage';
+import BookDetailPage from './pages/BookDetailPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import UserTable from './components/Admin/User/UserTable';
 import LayoutAdmin from './components/Admin/LayoutAdmin';
 import AddUser from './components/Admin/User/AddUser';
 import BookTable from './components/Admin/Book/BookTable';
+import BookPage from './pages/BookPage';
+import { SearchProvider } from './context/SearchContext';
 
 const Layout = () => {
   return (
@@ -58,13 +60,18 @@ export default function App() {
       element: <Layout />,
       errorElement: <NotFound />,
       children: [
-        { index: true, element: <Home /> },
+        { index: true, element: <HomePage /> },
         {
           path: 'contact',
           element: <ContactPage />,
         },
         {
-          path: 'book',
+          path: 'book/:slug',
+          element: <BookDetailPage />,
+        },
+
+        {
+          path: 'book/',
           element: <BookPage />,
         },
       ],
@@ -100,7 +107,7 @@ export default function App() {
           ),
         },
         {
-          path: 'book',
+          path: 'book/',
           element: (
             <ProtectedRoute>
               <BookTable />
@@ -132,7 +139,9 @@ export default function App() {
       window.location.pathname === '/register' ||
       window.location.pathname === '/' ||
       window.location.pathname.startsWith('/book') ? (
-        <RouterProvider router={router} />
+        <SearchProvider>
+          <RouterProvider router={router} />
+        </SearchProvider>
       ) : (
         <Loading />
       )}

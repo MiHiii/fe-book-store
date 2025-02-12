@@ -81,7 +81,7 @@ instance.interceptors.response.use(
         window.location.pathname !== '/' &&
         !window.location.pathname.startsWith('/book')
       ) {
-        // window.location.href = '/login';
+        window.location.href = '/login';
       }
     }
 

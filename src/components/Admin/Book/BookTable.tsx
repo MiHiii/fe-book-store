@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Form, Input, Space, Table, Modal, message } from 'antd';
 import {
   callFetchListBook,
-  deleteBook,
+  callDeleteBook,
   callUpdateBook,
 } from '../../../services/api';
 import { TbRefresh } from 'react-icons/tb';
@@ -11,6 +11,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { utils, writeFile } from 'xlsx';
 import BookViewDetail from './BookViewDetail';
 import BookModalCreate from './BookModalCreate';
+import BookModalUpdate from './BookModalUpdate';
 
 interface DataType {
   _id: string;
@@ -34,12 +35,12 @@ const BookTable: React.FC = () => {
   const [pageSize, setPageSize] = useState(5);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
-  const [currentBook, setCurrentBook] = useState<DataType | null>(null);
   const [sortQuery, setSortQuery] = useState('');
   const [dataViewDetail, setDataViewDetail] = useState<DataType | null>(null);
   const [openModalViewDetail, setOpenModalViewDetail] = useState(false);
   const [openModalCreate, setOpenModalCreate] = useState(false);
+  const [openModalUpdate, setOpenModalUpdate] = useState(false);
+  const [dataUpdate, setDataUpdate] = useState<DataType | null>(null);
   const [form] = Form.useForm();
   const location = useLocation();
 
@@ -63,9 +64,7 @@ const BookTable: React.FC = () => {
       okType: 'danger',
       cancelText: 'No',
       onOk() {
-        deleteBook(listBook._id);
-        setListBook(listBook.filter((item: any) => item._id !== listBook._id));
-        message.success('Delete user success!');
+        handleDelete(listBook._id);
       },
       onCancel() {},
     });
@@ -100,18 +99,6 @@ const BookTable: React.FC = () => {
     }
     setLoading(false);
   };
-
-  useEffect(() => {
-    if (currentBook) {
-      form.setFieldsValue({
-        _id: currentBook._id,
-        mainText: currentBook.mainText,
-        author: currentBook.author,
-        price: currentBook.price,
-        category: currentBook.category,
-      });
-    }
-  }, [currentBook]);
 
   const onChange = (pagination: any, filter: any, sorter: any, extra: any) => {
     if (pagination && pagination.current !== current) {
@@ -191,7 +178,7 @@ const BookTable: React.FC = () => {
     {
       title: 'Price',
       dataIndex: 'price',
-      width: '10%',
+      width: '13%',
       sorter: true,
       render: (text: any, record: any) => {
         return `${record.price.toLocaleString('vi-VN')} ₫`;
@@ -201,7 +188,7 @@ const BookTable: React.FC = () => {
       title: 'Update At',
       dataIndex: 'updatedAt',
       sorter: true,
-      width: '9%',
+      width: '14%',
       render: (text: any, record: any) => {
         const date = new Date(record.updatedAt);
         return `${date.getFullYear()}-${(date.getMonth() + 1)
@@ -216,8 +203,8 @@ const BookTable: React.FC = () => {
         <Space size='middle'>
           <a
             onClick={() => {
-              setCurrentBook(record);
-              setOpenModal(true);
+              setDataUpdate(record);
+              setOpenModalUpdate(true);
             }}
             className='text-blue-500 mr-3 hover:underline hover:text-blue-500  '
           >
@@ -233,51 +220,11 @@ const BookTable: React.FC = () => {
       ),
     },
   ];
-
-  // const handleExport = async () => {
-  //   const res = await callFetchAllUser();
-  //   const raw_data = res.data;
-
-  //   /* flatten objects */
-  //   const rows = raw_data.map((row) => ({
-  //     id: row._id,
-  //     name: row.fullName,
-  //     email: row.email,
-  //     phone: row.phone,
-  //     updateAt: row.updatedAt,
-  //     createAt: row.createdAt,
-  //     role: row.role,
-  //   }));
-
-  //   /* generate worksheet and workbook */
-  //   const worksheet = utils.json_to_sheet(rows);
-  //   const workbook = utils.book_new();
-  //   utils.book_append_sheet(workbook, worksheet, 'Dates');
-
-  //   /* fix headers */
-  //   utils.sheet_add_aoa(
-  //     worksheet,
-  //     [['Id', 'Full Name', 'Email', 'Phone', 'Update At', 'Create At', 'Role']],
-  //     { origin: 'A1' },
-  //   );
-
-  //   /* calculate column width */
-  //   const max_width = rows.reduce((w, r) => Math.max(w, r.name.length), 10);
-  //   worksheet['!cols'] = [{ wch: max_width }];
-
-  //   /* create an XLSX file and try to save to Presidents.xlsx */
-  //   writeFile(workbook, 'AllUser.csv', { compression: true });
-  // };
-
-  const handleUpdateBook = async () => {
-    const data = form.getFieldsValue();
-
-    const res = await callUpdateBook(data);
+  const handleDelete = async (id: string) => {
+    const res = await callDeleteBook(id);
     if (res && res.data) {
+      message.success('Delete book successfully');
       fetchBook();
-      setOpenModal(false);
-      setCurrentBook(null);
-      message.success('Update book success!');
     }
   };
 
@@ -327,28 +274,6 @@ const BookTable: React.FC = () => {
           </div>
         )}
       />
-      <Modal
-        title='Update Book'
-        open={openModal}
-        onOk={() => handleUpdateBook()}
-        onCancel={() => {
-          setOpenModal(false);
-          setCurrentBook(null);
-        }}
-      >
-        {/* <Form form={form} name='basic' autoComplete='off'>
-          <Form.Item label='Id' name='_id' hidden></Form.Item>
-          <Form.Item label='Họ tên' name='fullName'>
-            <Input />
-          </Form.Item>
-          <Form.Item label='Email' name='email'>
-            <Input disabled />
-          </Form.Item>
-          <Form.Item label='Số điện thoại' name='phone'>
-            <Input />
-          </Form.Item>
-        </Form> */}
-      </Modal>
       <BookViewDetail
         openModalViewDetail={openModalViewDetail}
         setOpenModalViewDetail={setOpenModalViewDetail}
@@ -358,6 +283,14 @@ const BookTable: React.FC = () => {
       <BookModalCreate
         openModalCreate={openModalCreate}
         setOpenModalCreate={setOpenModalCreate}
+        fetchBook={fetchBook}
+      />
+      <BookModalUpdate
+        openModalUpdate={openModalUpdate}
+        setOpenModalUpdate={setOpenModalUpdate}
+        dataUpdate={dataUpdate}
+        setDataUpdate={setDataUpdate}
+        fetchBook={fetchBook}
       />
     </div>
   );

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
+import { SearchContext } from '../../context/SearchContext';
 
 const SearchBar: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const { searchTerm, setSearchTerm } = useContext(SearchContext);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const popularSearchTerms = [
@@ -23,6 +24,10 @@ const SearchBar: React.FC = () => {
     setIsSearchOpen(false);
   };
 
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    setIsSearchOpen(false);
+  };
   return (
     <div className='w-full bg-white'>
       <div className='flex lg:ml-6'>
@@ -59,7 +64,7 @@ const SearchBar: React.FC = () => {
                   <input
                     type='text'
                     placeholder='Search'
-                    className='w-96  border-none outline-none bg-gray-100 text-sm p-2 rounded-md focus:ring-2 focus:ring-gray-400'
+                    className='w-96 border-none outline-none bg-gray-100 text-sm p-2 rounded-md focus:ring-2 focus:ring-gray-400'
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     onFocus={handleSearchFocus}
@@ -99,7 +104,7 @@ const SearchBar: React.FC = () => {
                   {popularSearchTerms.map((term, index) => (
                     <span
                       key={index}
-                      onClick={() => setSearchTerm(term)}
+                      onClick={() => handleSearch(term)}
                       className='cursor-pointer bg-gray-100 text-sm text-gray-800 px-3 py-1 rounded-full hover:bg-gray-200'
                     >
                       {term}

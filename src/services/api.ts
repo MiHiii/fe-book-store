@@ -64,11 +64,7 @@ export const callFetchListBook = (query: string) => {
   return axios.get(`/api/v1/book?${query}`);
 };
 
-export const callUpdateBook = (data: any) => {
-  return axios.put(`/api/v1/book/`, data);
-};
-
-export const deleteBook = (id: string) => {
+export const callDeleteBook = (id: string) => {
   return axios.delete(`/api/v1/book/${id}`);
 };
 
@@ -98,6 +94,29 @@ export const callCreateBook = (
   });
 };
 
+export const callUpdateBook = (
+  id: string,
+  thumbnail: string,
+  slider: string,
+  mainText: string,
+  author: string,
+  price: number,
+  sold: number,
+  quantity: number,
+  category: string,
+) => {
+  return axios.put(`/api/v1/book/${id}`, {
+    thumbnail,
+    slider,
+    mainText,
+    author,
+    price,
+    sold,
+    quantity,
+    category,
+  });
+};
+
 export const callUploadBookImg = (fileImg: any) => {
   const bodyFormData = new FormData();
   bodyFormData.append('fileImg', fileImg);
@@ -110,4 +129,8 @@ export const callUploadBookImg = (fileImg: any) => {
       'upload-type': 'book',
     },
   });
+};
+
+export const callFetchBookById = (id: string) => {
+  return axios.get(`api/v1/book/${id}`);
 };

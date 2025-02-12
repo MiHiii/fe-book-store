@@ -69,9 +69,7 @@ function BookViewDetail(props: any) {
     setOpenModalViewDetail(false);
   };
 
-  console.log('dataViewDetail', dataViewDetail);
-  const handlePreview = async (file: any) => {
-    setFileList(dataViewDetail?.thumbnail);
+  const handlePreview = async (file: UploadFile) => {
     setPreviewImage(file.url || (file.preview as string));
     setPreviewOpen(true);
   };
@@ -100,6 +98,12 @@ function BookViewDetail(props: any) {
           <Descriptions.Item label='Price'>
             {dataViewDetail?.price}
           </Descriptions.Item>
+          <Descriptions.Item label='Quantity'>
+            {dataViewDetail?.quantity}
+          </Descriptions.Item>
+          <Descriptions.Item label='Sold'>
+            {dataViewDetail?.sold}
+          </Descriptions.Item>
           <Descriptions.Item span={2} label='Category'>
             {dataViewDetail?.category}
           </Descriptions.Item>
@@ -115,6 +119,7 @@ function BookViewDetail(props: any) {
               listType='picture-card'
               fileList={fileList}
               onPreview={handlePreview}
+              showUploadList={{ showRemoveIcon: false }}
             ></Upload>
             {previewImage && (
               <Image
