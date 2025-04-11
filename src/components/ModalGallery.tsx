@@ -18,8 +18,6 @@ const ModalGallery: React.FC<ModalGalleryProps> = ({
   items,
   title,
 }) => {
-  console.log('test', items); // Kiểm tra xem dữ liệu có được truyền đúng không
-
   const [activeIndex, setActiveIndex] = useState(0);
   const refGallery = useRef<ImageGallery>(null);
 

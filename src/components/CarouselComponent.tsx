@@ -1,5 +1,5 @@
 import { Carousel } from 'antd';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const CarouselComponent = ({ listBook }) => {
   const navigate = useNavigate();

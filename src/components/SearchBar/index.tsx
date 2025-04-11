@@ -1,9 +1,11 @@
 import React, { useContext, useState } from 'react';
 import { SearchContext } from '../../context/SearchContext';
+import { useNavigate } from 'react-router-dom';
 
 const SearchBar: React.FC = () => {
   const { searchTerm, setSearchTerm } = useContext(SearchContext);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const navigate = useNavigate();
 
   const popularSearchTerms = [
     'air force 1',
@@ -27,6 +29,8 @@ const SearchBar: React.FC = () => {
   const handleSearch = (term: string) => {
     setSearchTerm(term);
     setIsSearchOpen(false);
+    console.log('Search term:', term);
+    navigate(`book?mainText=${term}`);
   };
   return (
     <div className='w-full bg-white'>
@@ -72,7 +76,9 @@ const SearchBar: React.FC = () => {
                   <svg
                     className='h-6 w-6 text-gray-400 -ml-8'
                     fill='none'
-                    onClick={() => {}}
+                    onClick={() => {
+                      handleSearch(searchTerm);
+                    }}
                     viewBox='0 0 24 24'
                     strokeWidth='1.5'
                     stroke='currentColor'

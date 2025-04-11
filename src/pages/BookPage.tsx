@@ -1,4 +1,5 @@
 import { FilterTwoTone, ReloadOutlined, HomeOutlined } from '@ant-design/icons';
+import debounce from 'lodash/debounce';
 import {
   Form,
   Checkbox,
@@ -46,7 +47,7 @@ interface PaginationType {
 }
 
 const BookPage = () => {
-  const { searchTerm } = useContext(SearchContext);
+  const { searchTerm, setSearchTerm } = useContext(SearchContext);
   const [listCategory, setListCategory] = useState<Category[]>([]);
   const [listBook, setListBook] = useState<Book[]>([]);
   const [current, setCurrent] = useState<number>(1);
@@ -74,9 +75,16 @@ const BookPage = () => {
     initCategory();
   }, []);
 
+  // Debounce search term để tránh gọi API liên tục
   useEffect(() => {
-    fetchBook();
-  }, [current, pageSize, filter, sortQuery, searchTerm]);
+    const handler = debounce(() => {
+      fetchBook();
+    }, 500); // Chờ 500ms trước khi gọi API
+
+    handler();
+
+    return () => handler.cancel();
+  }, [searchTerm, current, pageSize, filter, sortQuery]);
 
   const fetchBook = async (): Promise<void> => {
     setIsLoading(true);
@@ -121,7 +129,7 @@ const BookPage = () => {
   };
 
   const onFinish = (values: FormValues): void => {
-    if (values?.range?.from >= 0 && values?.range?.to >= 0) {
+    if (values.range && values.range.from >= 0 && values.range.to >= 0) {
       let f = `price>=${values.range.from}&price<=${values.range.to}`;
       if (values?.category?.length) {
         f += `&category=${values.category.join(',')}`;
@@ -290,21 +298,21 @@ const BookPage = () => {
                   {listBook.map((book, index) => (
                     <div
                       key={index}
-                      className='cursor-pointer hover:shadow-sm rounded-lg transition-shadow duration-200'
+                      className='cursor-pointer hover:shadow-lg rounded-lg transition-shadow duration-200 group'
                       onClick={() => handleRedirectBook(book)}
                     >
                       <div className='bg-white rounded-lg overflow-hidden'>
-                        <div className='aspect-w-1 aspect-h-1'>
+                        <div className='aspect-w-1 aspect-h-1 overflow-hidden'>
                           <img
                             src={`${
                               import.meta.env.VITE_BACKEND_URL
                             }/images/book/${book.thumbnail}`}
                             alt={book.mainText}
-                            className=' hover:scale-110 ease-in duration-100 overflow-hidden w-full h-[170px] object-cover'
+                            className='w-full h-[170px] object-cover transition-transform overflow-hidden  duration-200 ease-in group-hover:scale-110'
                           />
                         </div>
                         <div className='p-3'>
-                          <h3 className='text-sm font-medium line-clamp-2 mb-2'>
+                          <h3 className='text-sm font-medium line-clamp-2 mb-2 group-hover:text-blue-500 transition-colors duration-200 group-hover:cursor-pointer'>
                             {book.mainText}
                           </h3>
                           <div className='text-red-600 font-bold mb-2'>

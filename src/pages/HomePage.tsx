@@ -8,14 +8,20 @@ import {
   AiOutlineStar,
 } from 'react-icons/ai';
 import { FaMedal, FaAward } from 'react-icons/fa';
+import BookBestSeller from '../components/BookBestSeller';
 
 const HomePage = () => {
   const [listBook, setListBook] = useState<Book[]>([]);
+  const [bestSellerBook, setBestSellerBook] = useState<any>({});
   useEffect(() => {
     const fetchBook = async () => {
       const res = await callFetchListBook('');
       if (res && res.data) {
+        const topSellingBook = res.data.reduce((max, book) =>
+          book.sold > max.sold ? book : max,
+        );
         setListBook(res.data);
+        setBestSellerBook(topSellingBook);
       }
     };
     fetchBook();
@@ -32,6 +38,7 @@ const HomePage = () => {
         <AiOutlineStar className='text-7xl' />
       </div>
       <BookList listBook={listBook} />
+      <BookBestSeller bestSellerBook={bestSellerBook} />
 
       <div className='container mx-auto p-4 mt-2'>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>

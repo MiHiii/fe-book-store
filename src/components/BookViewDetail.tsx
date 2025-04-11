@@ -1,10 +1,11 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Rate, Divider } from 'antd';
 import ImageGallery from 'react-image-gallery';
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import { BsCartPlus } from 'react-icons/bs';
 import BookLoader from './BookLoader';
 import ModalGallery from './ModalGallery';
+import { useNavigate } from 'react-router-dom';
 
 interface BookViewDetailProps {
   dataBook?: {
@@ -16,11 +17,12 @@ interface BookViewDetailProps {
   };
 }
 
-const BookViewDetail: React.FC<BookViewDetailProps> = ({ dataBook }) => {
-  console.log('dataBook', dataBook);
+const BookViewDetail = ({ dataBook }) => {
+  const navigate = useNavigate();
   const [isOpenModalGallery, setIsOpenModalGallery] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const refGallery = useRef<ImageGallery | null>(null);
+  const [relatedBooks, setRelatedBooks] = useState([]);
+  const refGallery = useRef<{ getCurrentIndex: () => number } | null>(null);
 
   const handleOnClickImage = () => {
     setIsOpenModalGallery(true);

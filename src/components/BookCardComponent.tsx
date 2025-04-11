@@ -36,12 +36,12 @@ const BookCardComponent = ({ book }) => {
 
   return (
     <Card
-      className='w-[300px] shadow-lg rounded-lg overflow-hidden'
+      className='w-[300px] shadow-lg  rounded-lg overflow-hidden group '
       cover={
         <img
           alt={book.mainText}
           src={imageUrl}
-          className='h-[300px] object-cover cursor-pointer'
+          className='h-[300px] object-cover cursor-pointer transition-transform overflow-hidden  duration-200 ease-in group-hover:scale-110'
           onClick={handleRedirectBook}
         />
       }
@@ -50,7 +50,7 @@ const BookCardComponent = ({ book }) => {
       <Meta
         title={
           <span
-            className='button text-lg font-bold line-clamp-2 text-gray-700 hover:text-gray-800 cursor-pointer'
+            className=' text-lg font-bold line-clamp-2 text-gray-700 button hover:text-gray-800 cursor-pointer'
             onClick={handleRedirectBook}
           >
             {book.mainText}
@@ -58,7 +58,7 @@ const BookCardComponent = ({ book }) => {
         }
         description={
           <div className='text-sm text-gray-600 mt-2'>
-            <p>
+            <p className='line-clamp-1'>
               <strong>Tác giả:</strong> {book.author}
             </p>
             <p>

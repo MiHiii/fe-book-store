@@ -20,9 +20,12 @@ const BookList = ({ listBook }) => {
             <BookCardComponent book={book} />
           </Col>
         ))}
-        <span className='button relative text-sm font-medium text-gray-700 hover:text-gray-800'>
+        <a
+          href='/book'
+          className='button relative text-sm font-medium text-gray-700 hover:text-gray-800'
+        >
           View All Books →
-        </span>
+        </a>
       </Row>
       <Divider />
     </div>
